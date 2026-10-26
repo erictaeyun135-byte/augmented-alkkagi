@@ -13,7 +13,8 @@ const BANANA_FRICTION = 0.004;  // 바나나 알의 미끄러움 (작을수록 �
 const BOMB_RADIUS     = 170;    // 폭발 범위
 const BOMB_POWER      = 14;     // 폭발 힘
 const POOP_RADIUS     = 18;     // 똥 크기
-const RUBBER_BOUNCE   = 0.8;    // 고무 테두리 튕김 세기
+const RUBBER_COUNT    = 2;      // 고무 테두리가 붙는 알 개수
+const RUBBER_BOUNCE   = 1.2;    // 고무 테두리로 튕겨 들어오는 속도 (얼마나 세게 나갔든 항상 같음, 1.2 ≈ 알 2개 거리)
 
 // ===== 고정값 =====
 const GAME_SIZE  = 1000;
@@ -248,7 +249,7 @@ class GameScene extends Phaser.Scene {
         }
       }
       if (hasAug(color, 'rubber')) {
-        for (const s of mine) s.bounceLeft = 1;
+        for (const s of shuffle(mine).slice(0, RUBBER_COUNT)) s.bounceLeft = 1;
       }
       if (hasAug(color, 'banana')) {
         const target = Phaser.Utils.Array.GetRandom(this.myStones(other(color)).filter(s => !s.banana));
@@ -324,10 +325,11 @@ class GameScene extends Phaser.Scene {
       let { x, y } = b.position;
       let vx = b.velocity.x, vy = b.velocity.y;
       const L = this.left, R = this.left + BOARD_SIZE, T = this.top, B = this.top + BOARD_SIZE;
-      if (x < L) { x = L + 1; vx =  Math.abs(vx) * RUBBER_BOUNCE; }
-      if (x > R) { x = R - 1; vx = -Math.abs(vx) * RUBBER_BOUNCE; }
-      if (y < T) { y = T + 1; vy =  Math.abs(vy) * RUBBER_BOUNCE; }
-      if (y > B) { y = B - 1; vy = -Math.abs(vy) * RUBBER_BOUNCE; }
+      vx *= 0.2; vy *= 0.2;  // 옆으로 미끄러지던 힘도 대부분 없앰
+      if (x < L) { x = L + 1; vx =  RUBBER_BOUNCE; }
+      if (x > R) { x = R - 1; vx = -RUBBER_BOUNCE; }
+      if (y < T) { y = T + 1; vy =  RUBBER_BOUNCE; }
+      if (y > B) { y = B - 1; vy = -RUBBER_BOUNCE; }
       this.matter.body.setPosition(b, { x, y });
       this.matter.body.setVelocity(b, { x: vx, y: vy });
       return;
