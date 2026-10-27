@@ -4,12 +4,77 @@
   <meta charset="UTF-8">
   <title>증강 알까기</title>
   <style>
-    html, body { margin: 0; height: 100%; background: #1e1e1e; overflow: hidden; }
+    html, body { margin: 0; height: 100%; background: #1e1e1e; overflow: hidden; font-family: 'Malgun Gothic', sans-serif; color: #eee; }
+
+    /* 시작 화면 / 대기실 (게임 화면 위에 떠 있는 창) */
+    #overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #1e1e1e; z-index: 10; }
+    .panel { width: 440px; max-width: calc(100% - 32px); text-align: center; }
+    .panel h1 { font-size: 44px; margin: 0 0 28px; }
+    .panel h2 { font-size: 20px; color: #bbb; margin: 0 0 6px; font-weight: normal; }
+    .row { display: flex; gap: 8px; margin: 10px 0; }
+    input { flex: 1; font: inherit; font-size: 20px; padding: 10px 12px; border-radius: 8px; border: 2px solid #555; background: #2d2d3a; color: #fff; }
+    input#code { text-transform: uppercase; letter-spacing: 6px; text-align: center; }
+    button { font: inherit; font-size: 20px; padding: 10px 16px; border-radius: 8px; border: 2px solid #777; background: #2d2d3a; color: #ffcc00; cursor: pointer; }
+    button:hover:not(:disabled) { border-color: #ffcc00; }
+    button:disabled { opacity: 0.4; cursor: default; }
+    button.wide { width: 100%; }
+    button.sub { color: #66ccff; font-size: 17px; }
+    .divider { color: #777; margin: 18px 0 8px; font-size: 15px; }
+    .msg { min-height: 24px; color: #ff9b6b; margin-top: 14px; }
+
+    #roomCode { font-size: 64px; letter-spacing: 12px; color: #ffcc00; margin: 0 0 18px; font-weight: bold; }
+    .modes { display: flex; gap: 8px; margin-bottom: 14px; }
+    .modes button { flex: 1; font-size: 17px; color: #ccc; }
+    .modes button.on { border-color: #ffcc00; color: #ffcc00; background: #3a3a4a; }
+    #plist { list-style: none; padding: 0; margin: 0 0 14px; text-align: left; font-size: 20px; }
+    #plist li { padding: 8px 12px; margin: 4px 0; background: #2a2a33; border-radius: 6px; }
+    #lobbyMsg { color: #aaa; }
   </style>
 </head>
 <body>
+  <div id="overlay">
+    <!-- 시작 화면 -->
+    <div class="panel" id="titlePanel">
+      <h1>증강 알까기</h1>
+      <h2>닉네임</h2>
+      <div class="row"><input id="nick" maxlength="8" placeholder="최대 8글자"></div>
+      <button class="wide" id="create">방 만들기</button>
+      <div class="divider">— 친구 방에 들어가기 —</div>
+      <div class="row">
+        <input id="code" maxlength="4" placeholder="코드">
+        <button id="join">방 참가</button>
+      </div>
+      <div class="divider">— 혼자 —</div>
+      <button class="wide sub" id="practice">한 화면 연습 (온라인 없이)</button>
+      <div class="msg" id="titleMsg"></div>
+    </div>
+
+    <!-- 대기실 -->
+    <div class="panel" id="lobbyPanel" style="display:none">
+      <h2>방 코드 (친구에게 알려주세요)</h2>
+      <div id="roomCode"></div>
+      <div class="modes">
+        <button id="mode-duel">1대1</button>
+        <button id="mode-ffa">4인 개인전</button>
+        <button id="mode-team">2대2 팀전</button>
+      </div>
+      <ul id="plist"></ul>
+      <div class="row">
+        <button id="shuffle" class="sub">팀 섞기</button>
+        <button id="start" style="flex:1">시작</button>
+      </div>
+      <button class="wide sub" id="leave">방 나가기</button>
+      <div class="msg" id="lobbyMsg"></div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/phaser@4.1.0/dist/phaser.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-database-compat.js"></script>
   <script src="augments.js"></script>
+  <script src="net.js"></script>
+  <script src="view.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
